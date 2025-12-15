@@ -55,6 +55,11 @@ inline Klass** InstanceKlass::end_of_nonstatic_oop_maps() const {
                    nonstatic_oop_map_count());
 }
 
+inline address InstanceKlass::end_of_instance_klass() const {
+  return (address)end_of_nonstatic_oop_maps() +
+      (is_interface() ? sizeof(InstanceKlass*) : 0);
+}
+
 inline InstanceKlass* volatile* InstanceKlass::adr_implementor() const {
   if (is_interface()) {
     return (InstanceKlass* volatile*)end_of_nonstatic_oop_maps();

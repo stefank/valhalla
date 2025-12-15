@@ -141,12 +141,12 @@ struct JvmtiCachedClassFileData;
 class SigEntry;
 
 class InlineKlassFixedBlock {
-  Array<SigEntry>** _extended_sig;
-  Array<VMRegPair>** _return_regs;
-  address* _pack_handler;
-  address* _pack_handler_jobject;
-  address* _unpack_handler;
-  int* _null_reset_value_offset;
+  Array<SigEntry>* _extended_sig;
+  Array<VMRegPair>* _return_regs;
+  address _pack_handler;
+  address _pack_handler_jobject;
+  address _unpack_handler;
+  int _null_reset_value_offset;
   int _payload_offset;          // offset of the begining of the payload in a heap buffered instance
   int _payload_size_in_bytes;   // size of payload layout
   int _payload_alignment;       // alignment required for payload
@@ -344,7 +344,9 @@ class InstanceKlass: public Klass {
 
   Array<InlineLayoutInfo>* _inline_layout_info_array;
   Array<u2>* _loadable_descriptors;
-  const InlineKlassFixedBlock* _adr_inlineklass_fixed_block;
+
+  // Located here because sub-klasses can't have their own explicit fields
+  InlineKlassFixedBlock* _adr_inlineklass_fixed_block;
 
   // embedded Java vtable follows here
   // embedded Java itables follows here
@@ -1065,6 +1067,10 @@ public:
 
   inline OopMapBlock* start_of_nonstatic_oop_maps() const;
   inline Klass** end_of_nonstatic_oop_maps() const;
+
+  // The end of the memory block that belongs to this InstanceKlass.
+  // Sub-klasses can place their fields after this address.
+  inline address end_of_instance_klass() const;
 
   inline InstanceKlass* volatile* adr_implementor() const;
 
