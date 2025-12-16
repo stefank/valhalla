@@ -481,7 +481,7 @@ InstanceKlass* InstanceKlass::allocate_instance_klass(const ClassFileParser& par
                                        parser.itable_size(),
                                        nonstatic_oop_map_size(parser.total_oop_map_count()),
                                        parser.is_interface(),
-                                       parser.is_inline_type());
+                                       parser.is_inline_type() ? InlineKlass::extension() : 0);
 
   const Symbol* const class_name = parser.class_name();
   assert(class_name != nullptr, "invariant");

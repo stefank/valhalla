@@ -27,13 +27,38 @@
 
 #include "classfile/classFileParser.hpp"
 #include "classfile/javaClasses.hpp"
+#include "code/vmreg.hpp"
 #include "oops/arrayKlass.hpp"
 #include "oops/instanceKlass.hpp"
 #include "oops/method.hpp"
 #include "runtime/registerMap.hpp"
+#include "runtime/signature.hpp"
 
 // An InlineKlass is a specialized InstanceKlass for concrete value classes
 // (abstract value classes are represented by InstanceKlass)
+
+class InlineKlassFixedBlock {
+  friend class InlineKlass;
+
+  // Addresses used for inline type calling convention
+  Array<SigEntry>* _extended_sig;
+  Array<VMRegPair>* _return_regs;
+  address _pack_handler;
+  address _pack_handler_jobject;
+  address _unpack_handler;
+  int _null_reset_value_offset;
+  int _payload_offset;           // offset of the begining of the payload in a heap buffered instance
+  int _payload_size_in_bytes;    // size of payload layout
+  int _payload_alignment;        // alignment required for payload
+  int _non_atomic_size_in_bytes; // size of null-free non-atomic flat layout
+  int _non_atomic_alignment;     // alignment requirement for null-free non-atomic layout
+  int _atomic_size_in_bytes;     // size and alignment requirement for a null-free atomic layout, -1 if no atomic flat layout is possible
+  int _nullable_size_in_bytes;   // size and alignment requirement for a nullable layout (always atomic), -1 if no nullable flat layout is possible
+  int _null_marker_offset;       // expressed as an offset from the beginning of the object for a heap buffered value
+                                 // payload_offset must be subtracted to get the offset from the beginning of the payload
+
+  InlineKlassFixedBlock();
+};
 
 class InlineKlass: public InstanceKlass {
   friend class VMStructs;
@@ -53,6 +78,10 @@ class InlineKlass: public InstanceKlass {
   // After the InstanceKlass part of the InlineKlass comes the
   // InlineKlassFixedBlock. It can't be instantiated as a field
   // because InstanceKlass instances have dynamic size.
+
+  static size_t extension() {
+    return sizeof(InlineKlassFixedBlock);
+  }
 
   address calculate_fixed_block_address() const;
 
@@ -182,6 +211,14 @@ class InlineKlass: public InstanceKlass {
   // Note that this size only applies to heap allocated stand-alone instances.
   int size_helper() const override {
     return layout_helper_to_size_helper(layout_helper());
+  }
+
+  int size() const override {
+    return InstanceKlass::size(vtable_length(),
+                               itable_length(),
+                               nonstatic_oop_map_size(),
+                               is_interface(),
+                               extension());
   }
 
   // allocate_instance() allocates a stand alone value in the Java heap

@@ -53,37 +53,39 @@
 #include "utilities/copy.hpp"
 #include "utilities/stringUtils.hpp"
 
+
+InlineKlassFixedBlock::InlineKlassFixedBlock()
+  : _extended_sig(nullptr),
+    _return_regs(nullptr),
+    _pack_handler(nullptr),
+    _pack_handler_jobject(nullptr),
+    _unpack_handler(nullptr),
+    _null_reset_value_offset(0),
+    _payload_offset(-1),
+    _payload_size_in_bytes(-1),
+    _payload_alignment(-1),
+    _non_atomic_size_in_bytes(-1),
+    _non_atomic_alignment(-1),
+    _atomic_size_in_bytes(-1),
+    _nullable_size_in_bytes(-1),
+    _null_marker_offset(-1) {
+}
+
 InlineKlass::InlineKlass() {
   assert(CDSConfig::is_dumping_archive() || UseSharedSpaces, "only for CDS");
 }
 
-  // Constructor
+// Constructor
 InlineKlass::InlineKlass(const ClassFileParser& parser)
     : InstanceKlass(parser, InlineKlass::Kind, markWord::inline_type_prototype()) {
   assert(is_inline_klass(), "sanity");
   assert(prototype_header().is_inline_type(), "sanity");
 
-  // Set up the offset to the InstanceKlassFixedBlock of this klass
-  _adr_inlineklass_fixed_block = new (calculate_fixed_block_address()) InlineKlassFixedBlock;
+  // Install and set up the offset to the InstanceKlassFixedBlock of this klass
+  _adr_inlineklass_fixed_block = new (calculate_fixed_block_address()) InlineKlassFixedBlock();
 
-  // Addresses used for inline type calling convention
-  set_extended_sig(nullptr);
-  set_return_regs(nullptr);
-  set_pack_handler(nullptr);
-  set_pack_handler_jobject(nullptr);
-  set_unpack_handler(nullptr);
-
+  // Sanity check construction of the fixed block
   assert(pack_handler() == nullptr, "pack handler not null");
-
-  set_null_reset_value_offset(0);
-  set_payload_offset(-1);
-  set_payload_size_in_bytes(-1);
-  set_payload_alignment(-1);
-  set_non_atomic_size_in_bytes(-1);
-  set_non_atomic_alignment(-1);
-  set_atomic_size_in_bytes(-1);
-  set_nullable_size_in_bytes(-1);
-  set_null_marker_offset(-1);
 }
 
 address InlineKlass::calculate_fixed_block_address() const {
