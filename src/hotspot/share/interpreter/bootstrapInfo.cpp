@@ -189,7 +189,6 @@ void BootstrapInfo::resolve_args(TRAPS) {
     // return {arg...}; resolution of arguments is done immediately, before JDK code is called
     refArrayOop args_oop = oopFactory::new_refArray(vmClasses::Object_klass(),
                                                     _argc,
-                                                    ArrayKlass::ArrayProperties::DEFAULT,
                                                     CHECK);
     refArrayHandle args(THREAD, args_oop);
     _pool->copy_bootstrap_arguments_at(_bss_index, 0, _argc, args, 0, true, Handle(), CHECK);

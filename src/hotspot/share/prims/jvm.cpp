@@ -1428,7 +1428,7 @@ JVM_ENTRY(jobjectArray, JVM_GetDeclaredClasses(JNIEnv *env, jclass ofClass))
 
   if (iter.length() == 0) {
     // Neither an inner nor outer class
-    oop result = oopFactory::new_refArray(vmClasses::Class_klass(), 0, ArrayKlass::ArrayProperties::DEFAULT, CHECK_NULL);
+    oop result = oopFactory::new_refArray(vmClasses::Class_klass(), 0, CHECK_NULL);
     return (jobjectArray)JNIHandles::make_local(THREAD, result);
   }
 
@@ -1437,7 +1437,7 @@ JVM_ENTRY(jobjectArray, JVM_GetDeclaredClasses(JNIEnv *env, jclass ofClass))
   int length = iter.length();
 
   // Allocate temp. result array
-  refArrayOop r = oopFactory::new_refArray(vmClasses::Class_klass(), length/4, ArrayKlass::ArrayProperties::DEFAULT, CHECK_NULL);
+  refArrayOop r = oopFactory::new_refArray(vmClasses::Class_klass(), length / 4, CHECK_NULL);
   refArrayHandle result (THREAD, r);
   int members = 0;
 
@@ -1469,7 +1469,6 @@ JVM_ENTRY(jobjectArray, JVM_GetDeclaredClasses(JNIEnv *env, jclass ofClass))
     // Return array of right length
     refArrayOop res = oopFactory::new_refArray(vmClasses::Class_klass(),
                                                members,
-                                               ArrayKlass::ArrayProperties::DEFAULT,
                                                CHECK_NULL);
     for(int i = 0; i < members; i++) {
       res->obj_at_put(i, result->obj_at(i));
@@ -1944,7 +1943,6 @@ JVM_ENTRY(jobjectArray, JVM_GetNestMembers(JNIEnv* env, jclass current))
     // nest host is first in the array so make it one bigger
     refArrayOop r = oopFactory::new_refArray(vmClasses::Class_klass(),
                                              length + 1,
-                                             ArrayKlass::ArrayProperties::DEFAULT,
                                              CHECK_NULL);
     refArrayHandle result(THREAD, r);
     result->obj_at_put(0, host->java_mirror());
@@ -2023,7 +2021,6 @@ JVM_ENTRY(jobjectArray, JVM_GetPermittedSubclasses(JNIEnv* env, jclass current))
 
     refArrayOop r = oopFactory::new_refArray(vmClasses::Class_klass(),
                                              length,
-                                             ArrayKlass::ArrayProperties::DEFAULT,
                                              CHECK_NULL);
     refArrayHandle result(THREAD, r);
     int count = 0;

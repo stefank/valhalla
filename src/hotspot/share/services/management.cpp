@@ -1445,7 +1445,6 @@ JVM_ENTRY(jobjectArray, jmm_GetVMGlobalNames(JNIEnv *env))
   // allocate a temp array
   refArrayOop r = oopFactory::new_refArray(vmClasses::String_klass(),
                                            nFlags,
-                                           ArrayKlass::ArrayProperties::DEFAULT,
                                            CHECK_NULL);
   refArrayHandle flags_ah(THREAD, r);
   int num_entries = 0;
@@ -1467,7 +1466,6 @@ JVM_ENTRY(jobjectArray, jmm_GetVMGlobalNames(JNIEnv *env))
     // Return array of right length
     refArrayOop res = oopFactory::new_refArray(vmClasses::String_klass(),
                                                num_entries,
-                                               ArrayKlass::ArrayProperties::DEFAULT,
                                                CHECK_NULL);
     for(int i = 0; i < num_entries; i++) {
       res->obj_at_put(i, flags_ah->obj_at(i));

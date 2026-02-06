@@ -118,12 +118,12 @@ objArrayOop oopFactory::new_objArray(Klass* klass, int length, TRAPS) {
   return  new_objArray(klass, length, ArrayKlass::ArrayProperties::DEFAULT, THREAD);
 }
 
-refArrayOop oopFactory::new_refArray(Klass* klass, int length, ArrayKlass::ArrayProperties properties, TRAPS) {
+refArrayOop oopFactory::new_refArray(Klass* klass, int length, TRAPS) {
   ArrayKlass* array_type = klass->array_klass(CHECK_NULL);
-  ObjArrayKlass* oak = ObjArrayKlass::cast(array_type)->klass_with_properties(properties, true, CHECK_NULL);
+  ObjArrayKlass* oak = ObjArrayKlass::cast(array_type)->klass_with_properties(ArrayKlass::ArrayProperties::DEFAULT, true, CHECK_NULL);
   // Cast below must pass because klass_with_properties() was called with force_refarray == true
   RefArrayKlass* rak = RefArrayKlass::cast(oak);
-  oop array = rak->allocate_instance(length, properties, THREAD);
+  oop array = rak->allocate_instance(length, ArrayKlass::ArrayProperties::DEFAULT, THREAD);
   return refArrayOopDesc::cast(array);
 }
 

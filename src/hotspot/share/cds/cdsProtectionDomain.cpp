@@ -305,7 +305,7 @@ oop CDSProtectionDomain::shared_protection_domain(int index) {
 void CDSProtectionDomain::allocate_shared_protection_domain_array(int size, TRAPS) {
   if (_shared_protection_domains.resolve() == nullptr) {
     oop spd = oopFactory::new_refArray(
-        vmClasses::ProtectionDomain_klass(), size, ArrayKlass::ArrayProperties::DEFAULT, CHECK);
+        vmClasses::ProtectionDomain_klass(), size, CHECK);
     _shared_protection_domains = OopHandle(Universe::vm_global(), spd);
   }
 }
@@ -317,7 +317,7 @@ oop CDSProtectionDomain::shared_jar_url(int index) {
 void CDSProtectionDomain::allocate_shared_jar_url_array(int size, TRAPS) {
   if (_shared_jar_urls.resolve() == nullptr) {
     oop sju = oopFactory::new_refArray(
-        vmClasses::URL_klass(), size, ArrayKlass::ArrayProperties::DEFAULT, CHECK);
+        vmClasses::URL_klass(), size, CHECK);
     _shared_jar_urls = OopHandle(Universe::vm_global(), sju);
   }
 }
@@ -329,7 +329,7 @@ oop CDSProtectionDomain::shared_jar_manifest(int index) {
 void CDSProtectionDomain::allocate_shared_jar_manifest_array(int size, TRAPS) {
   if (_shared_jar_manifests.resolve() == nullptr) {
     oop sjm = oopFactory::new_refArray(
-        vmClasses::Jar_Manifest_klass(), size, ArrayKlass::ArrayProperties::DEFAULT, CHECK);
+        vmClasses::Jar_Manifest_klass(), size, CHECK);
     _shared_jar_manifests = OopHandle(Universe::vm_global(), sjm);
   }
 }
