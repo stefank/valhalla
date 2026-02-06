@@ -120,7 +120,7 @@ objArrayOop oopFactory::new_objArray(Klass* klass, int length, TRAPS) {
 
 refArrayOop oopFactory::new_refArray(Klass* klass, int length, TRAPS) {
   ArrayKlass* array_type = klass->array_klass(CHECK_NULL);
-  ObjArrayKlass* oak = ObjArrayKlass::cast(array_type)->klass_with_properties(ArrayKlass::ArrayProperties::DEFAULT, true, CHECK_NULL);
+  ObjArrayKlass* oak = ObjArrayKlass::cast(array_type)->ref_array_klass(CHECK_NULL);
   // Cast below must pass because klass_with_properties() was called with force_refarray == true
   RefArrayKlass* rak = RefArrayKlass::cast(oak);
   oop array = rak->allocate_instance(length, ArrayKlass::ArrayProperties::DEFAULT, THREAD);
@@ -131,7 +131,7 @@ flatArrayOop oopFactory::new_flatArray(Klass* k, int length, ArrayKlass::ArrayPr
   InlineKlass* klass = InlineKlass::cast(k);
 
   ArrayKlass* array_type = klass->array_klass(CHECK_NULL);
-  ObjArrayKlass* oak = ObjArrayKlass::cast(array_type)->klass_with_properties(props, false, CHECK_NULL);
+  ObjArrayKlass* oak = ObjArrayKlass::cast(array_type)->klass_with_properties(props, CHECK_NULL);
 
   assert(oak->is_flatArray_klass(), "Expected to be");
   assert(FlatArrayKlass::cast(oak)->layout_kind() == lk, "Unexpected layout kind");

@@ -518,7 +518,7 @@ void Universe::genesis(TRAPS) {
     oak->append_to_sibling_list();
 
     // Create a RefArrayKlass (which is the default) and initialize.
-    ObjArrayKlass* rak = ObjArrayKlass::cast(oak)->klass_with_properties(ArrayKlass::ArrayProperties::DEFAULT, false, THREAD);
+    RefArrayKlass* rak = ObjArrayKlass::cast(oak)->ref_array_klass(THREAD);
     _objectArrayKlass = rak;
   }
 
