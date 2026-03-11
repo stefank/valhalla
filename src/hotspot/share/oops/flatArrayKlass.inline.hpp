@@ -62,11 +62,11 @@ void FlatArrayKlass::oop_oop_iterate_elements_range_specialized(flatArrayOop a,
   // InlineKlass::oop_iterate_specialized is written to operate starting from a
   // value with an object header. We are iterating over flattened values, which
   // don't have headers. Need to adjust for this when passing down the address.
-  const int adjustment = element_klass()->payload_offset();
+  const int payload_offset = element_klass()->payload_offset();
   const int shift = Klass::layout_helper_log2_element_size(layout_helper());
 
   for (int index = start; index < end; index++) {
-    element_klass()->oop_iterate_specialized<T>(base + (index << shift) - adjustment, closure);
+    element_klass()->oop_iterate_specialized<T>(base + (index << shift), payload_offset, closure);
   }
 }
 
@@ -76,7 +76,7 @@ void FlatArrayKlass::oop_oop_iterate_elements_specialized_bounded(flatArrayOop a
                                                                   uintptr_t low, uintptr_t high) {
   assert(contains_oops(), "Nothing to iterate");
 
-  const int adjustment = element_klass()->payload_offset();
+  const int payload_offset = element_klass()->payload_offset();
   const int shift = Klass::layout_helper_log2_element_size(layout_helper());
   const int size = 1 << shift;
 
@@ -98,7 +98,7 @@ void FlatArrayKlass::oop_oop_iterate_elements_specialized_bounded(flatArrayOop a
   }
 
   for (; p < end; p += size) {
-    element_klass()->oop_iterate_specialized_bounded<T>((address)p - adjustment, closure, low, high);
+    element_klass()->oop_iterate_specialized_bounded<T>((address)p, payload_offset, closure, low, high);
   }
 }
 
