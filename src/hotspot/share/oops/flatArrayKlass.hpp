@@ -122,7 +122,10 @@ class FlatArrayKlass : public ObjArrayKlass {
 
 private:
   template <typename T, class OopClosureType>
-  inline void oop_oop_iterate_elements_specialized(flatArrayOop a, OopClosureType* closure, int start, int end);
+  inline void oop_oop_iterate_elements_specialized(flatArrayOop a, OopClosureType* closure);
+
+  template <typename T, class OopClosureType>
+  inline void oop_oop_iterate_elements_range_specialized(flatArrayOop a, OopClosureType* closure, int start, int end);
 
   template <typename T, class OopClosureType>
   inline void oop_oop_iterate_elements_bounded(flatArrayOop a, OopClosureType* closure, MemRegion mr);

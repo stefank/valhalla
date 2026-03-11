@@ -44,53 +44,68 @@
 
 template <typename T, class OopClosureType>
 void FlatArrayKlass::oop_oop_iterate_elements_specialized(flatArrayOop a,
-                                                          OopClosureType* closure,
-                                                          int start, int end) {
+                                                          OopClosureType* closure) {
+  oop_oop_iterate_elements_range_specialized<T>(a, closure, 0, a->length());
+}
+
+template <typename T, class OopClosureType>
+void FlatArrayKlass::oop_oop_iterate_elements_range_specialized(flatArrayOop a,
+                                                                OopClosureType* closure,
+                                                                int start, int end) {
   precond(contains_oops());
   precond(start >= 0);
   assert(start <= end, "Invalid range [%d - %d)", start, end);
   assert(end <= a->length(), "Invalid range [%d - %d) for a.length: %d", start, end, a->length());
 
-  const int shift = Klass::layout_helper_log2_element_size(layout_helper());
-  const uintptr_t base = (uintptr_t) a->base();
-  const uintptr_t start_addr = base + ((size_t)start << shift);
-  const uintptr_t stop_addr = base + ((size_t)end << shift);
+  const address base = (address)a->base();
 
-  oop_oop_iterate_elements_specialized_bounded<T>(a, closure, start_addr, stop_addr);
+  // InlineKlass::oop_iterate_specialized is written to operate starting from a
+  // value with an object header. We are iterating over flattened values, which
+  // don't have headers. Need to adjust for this when passing down the address.
+  const int adjustment = element_klass()->payload_offset();
+  const int shift = Klass::layout_helper_log2_element_size(layout_helper());
+
+  for (int index = start; index < end; index++) {
+    element_klass()->oop_iterate_specialized<T>(base + (index << shift) - adjustment, closure);
+  }
 }
 
 template <typename T, class OopClosureType>
 void FlatArrayKlass::oop_oop_iterate_elements_specialized_bounded(flatArrayOop a,
                                                                   OopClosureType* closure,
-                                                                  uintptr_t lo, uintptr_t hi) {
+                                                                  uintptr_t low, uintptr_t high) {
   assert(contains_oops(), "Nothing to iterate");
 
+  const int adjustment = element_klass()->payload_offset();
   const int shift = Klass::layout_helper_log2_element_size(layout_helper());
-  const int addr_incr = 1 << shift;
-  uintptr_t elem_addr = (uintptr_t)a->base();
-  uintptr_t stop_addr = elem_addr + ((uintptr_t)a->length() << shift);
-  const int oop_offset = element_klass()->payload_offset();
+  const int size = 1 << shift;
 
-  if (elem_addr < lo) {
-    uintptr_t diff = lo - elem_addr;
-    elem_addr += (diff >> shift) << shift;
-  }
-  if (stop_addr > hi) {
-    uintptr_t diff = stop_addr - hi;
-    stop_addr -= (diff >> shift) << shift;
+  uintptr_t p = (uintptr_t)a->base();
+  uintptr_t end = p + ((size_t)a->length() << shift);
+
+  // The code aligns p and end to be at the boundaries of the first and last
+  // element in the range. InlineKlass::oop_iterate_specialized_bounded will
+  // perform the final filtering of the range.
+
+  if (p < low) {
+    uintptr_t diff = low - p;
+    p += (diff >> shift) << shift;
   }
 
-  const uintptr_t end = stop_addr;
-  while (elem_addr < end) {
-    element_klass()->oop_iterate_specialized_bounded<T>((address)(elem_addr - oop_offset), closure, lo, hi);
-    elem_addr += addr_incr;
+  if (end > high) {
+    uintptr_t diff = end - high;
+    end -= (diff >> shift) << shift;
+  }
+
+  for (; p < end; p += size) {
+    element_klass()->oop_iterate_specialized_bounded<T>((address)p - adjustment, closure, low, high);
   }
 }
 
 template <typename T, class OopClosureType>
 void FlatArrayKlass::oop_oop_iterate_elements(flatArrayOop a, OopClosureType* closure) {
   if (contains_oops()) {
-    oop_oop_iterate_elements_specialized<T>(a, closure, 0, a->length());
+    oop_oop_iterate_elements_specialized<T>(a, closure);
   }
 }
 
@@ -132,7 +147,7 @@ void FlatArrayKlass::oop_oop_iterate_bounded(oop obj, OopClosureType* closure, M
 template <typename T, class OopClosureType>
 void FlatArrayKlass::oop_oop_iterate_elements_range(flatArrayOop a, OopClosureType *closure, int start, int end) {
   if (contains_oops()) {
-    oop_oop_iterate_elements_specialized<T>(a, closure, start, end);
+    oop_oop_iterate_elements_range_specialized<T>(a, closure, start, end);
   }
 }
 

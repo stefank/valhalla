@@ -116,7 +116,7 @@ inline address InlineKlass::payload_addr(oop o) const {
 }
 
 template <typename T, class OopClosureType>
-void InlineKlass::oop_iterate_specialized(const address oop_addr, OopClosureType* closure) {
+void InlineKlass::oop_iterate_specialized(address oop_addr, OopClosureType* closure) {
   OopMapBlock* map = start_of_nonstatic_oop_maps();
   OopMapBlock* const end_map = map + nonstatic_oop_map_count();
 
@@ -130,12 +130,12 @@ void InlineKlass::oop_iterate_specialized(const address oop_addr, OopClosureType
 }
 
 template <typename T, class OopClosureType>
-inline void InlineKlass::oop_iterate_specialized_bounded(const address oop_addr, OopClosureType* closure, uintptr_t lo, uintptr_t hi) {
+inline void InlineKlass::oop_iterate_specialized_bounded(address oop_addr, OopClosureType* closure, uintptr_t low, uintptr_t high) {
   OopMapBlock* map = start_of_nonstatic_oop_maps();
   OopMapBlock* const end_map = map + nonstatic_oop_map_count();
 
-  T* const l   = (T*) lo;
-  T* const h   = (T*) hi;
+  T* const l   = (T*) low;
+  T* const h   = (T*) high;
 
   for (; map < end_map; map++) {
     T* p = (T*) (oop_addr + map->offset());

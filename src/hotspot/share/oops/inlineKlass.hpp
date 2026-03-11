@@ -259,10 +259,10 @@ class InlineKlass: public InstanceKlass {
 
   // oop iterate raw inline type data pointer (where oop_addr may not be an oop, but backing/array-element)
   template <typename T, class OopClosureType>
-  inline void oop_iterate_specialized(const address oop_addr, OopClosureType* closure);
+  inline void oop_iterate_specialized(address oop_addr, OopClosureType* closure);
 
   template <typename T, class OopClosureType>
-  inline void oop_iterate_specialized_bounded(const address oop_addr, OopClosureType* closure, uintptr_t lo, uintptr_t hi);
+  inline void oop_iterate_specialized_bounded(address oop_addr, OopClosureType* closure, uintptr_t lo, uintptr_t hi);
 
   // calling convention support
   void initialize_calling_convention(TRAPS);
