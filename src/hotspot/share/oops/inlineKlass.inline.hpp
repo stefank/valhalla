@@ -122,10 +122,10 @@ void InlineKlass::oop_iterate_specialized(address payload_addr, OopClosureType* 
 
   // OopMapBlock::offset() returns an offset from the object base,
   // but we are operating on the payload. Need to adjust for this.
-  const int adjustment = payload_offset();
+  const size_t adjustment = payload_offset();
 
   for (; map < end_map; map++) {
-    const int offset = (map->offset() - adjustment);
+    const size_t offset = (map->offset() - adjustment);
     T* p = (T*) (payload_addr + offset);
     T* const end = p + map->count();
     for (; p < end; ++p) {
@@ -144,10 +144,10 @@ inline void InlineKlass::oop_iterate_specialized_bounded(address payload_addr, O
 
   // OopMapBlock::offset() returns an offset from the object base,
   // but we are operating on the payload. Need to adjust for this.
-  const int adjustment = payload_offset();
+  const size_t adjustment = payload_offset();
 
   for (; map < end_map; map++) {
-    const int offset = (map->offset() - adjustment);
+    const size_t offset = (map->offset() - adjustment);
     T* p = (T*) (payload_addr + offset);
     T* end = p + map->count();
     if (p < l) {
