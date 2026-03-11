@@ -257,12 +257,12 @@ class InlineKlass: public InstanceKlass {
   bool contains_oops() const { return nonstatic_oop_map_count() > 0; }
   int nonstatic_oop_count();
 
-  // oop iterate raw inline type data pointer (where oop_addr may not be an oop, but backing/array-element)
+  // oop iterate over a value payload
   template <typename T, class OopClosureType>
-  inline void oop_iterate_specialized(address payload_addr, int payload_offset, OopClosureType* closure);
+  inline void oop_iterate_specialized(address payload_addr, OopClosureType* closure);
 
   template <typename T, class OopClosureType>
-  inline void oop_iterate_specialized_bounded(address payload_addr, int payload_offset, OopClosureType* closure, uintptr_t lo, uintptr_t hi);
+  inline void oop_iterate_specialized_bounded(address payload_addr, OopClosureType* closure, uintptr_t lo, uintptr_t hi);
 
   // calling convention support
   void initialize_calling_convention(TRAPS);
