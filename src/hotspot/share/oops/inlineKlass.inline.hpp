@@ -120,11 +120,13 @@ void InlineKlass::oop_iterate_specialized(address payload_addr, OopClosureType* 
   OopMapBlock* map = start_of_nonstatic_oop_maps();
   OopMapBlock* const end_map = map + nonstatic_oop_map_count();
 
-  const address oop_addr = payload_addr - payload_offset();
-;
+  // OopMapBlock::offset() returns an offset from the object base,
+  // but we are operating on the payload. Need to adjust for this.
+  const int adjustment = payload_offset();
 
   for (; map < end_map; map++) {
-    T* p = (T*) (oop_addr + map->offset());
+    const int offset = (map->offset() - adjustment);
+    T* p = (T*) (payload_addr + offset);
     T* const end = p + map->count();
     for (; p < end; ++p) {
       Devirtualizer::do_oop(closure, p);
@@ -137,13 +139,16 @@ inline void InlineKlass::oop_iterate_specialized_bounded(address payload_addr, O
   OopMapBlock* map = start_of_nonstatic_oop_maps();
   OopMapBlock* const end_map = map + nonstatic_oop_map_count();
 
-  const address oop_addr = payload_addr - payload_offset();
-
   T* const l   = (T*) low;
   T* const h   = (T*) high;
 
+  // OopMapBlock::offset() returns an offset from the object base,
+  // but we are operating on the payload. Need to adjust for this.
+  const int adjustment = payload_offset();
+
   for (; map < end_map; map++) {
-    T* p = (T*) (oop_addr + map->offset());
+    const int offset = (map->offset() - adjustment);
+    T* p = (T*) (payload_addr + offset);
     T* end = p + map->count();
     if (p < l) {
       p = l;
